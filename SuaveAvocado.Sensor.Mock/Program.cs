@@ -4,6 +4,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Newtonsoft.Json;
 using SuaveAvocado.Contacts;
+using SuaveAvocado.Sensor.Mock.Secrets;
 using System;
 using System.IO;
 using System.Text;
@@ -25,7 +26,7 @@ namespace SuaveAvocado.Sensor.Mock
 
             ConfigureEnviroment();
 
-            var deviceConnectionString = Configuration["mock-01:connectionString"];
+            var deviceConnectionString = Configuration["DeviceConfiguration:ConnectionString"];
             _device = DeviceClient.CreateFromConnectionString(deviceConnectionString);
 
             await _device.OpenAsync();
@@ -44,6 +45,7 @@ namespace SuaveAvocado.Sensor.Mock
             Console.WriteLine("h: send happy feedback");
             Console.WriteLine("u: send unhappy feedback");
             Console.WriteLine("e: request emergency help");
+            Console.WriteLine("r: reveal secrets (connection string)");
 
             var random = new Random();
             var quitRequested = false;
@@ -61,7 +63,7 @@ namespace SuaveAvocado.Sensor.Mock
                 {
                     case 'q':
                         quitRequested = true;
-                        break;
+                        continue;
                     case 'h':
                         status = StatusType.Happy;
                         break;
@@ -71,6 +73,9 @@ namespace SuaveAvocado.Sensor.Mock
                     case 'e':
                         status = StatusType.Emergency;
                         break;
+                    case 'r':
+                        RevealSecrets();
+                        continue;
                 }
 
                 var telemetry = new Telemetry
@@ -102,7 +107,10 @@ namespace SuaveAvocado.Sensor.Mock
             }
 
             Configuration = builder.Build();
+        }
 
+        private static void RevealSecrets()
+        {
             IServiceCollection services = new ServiceCollection();
 
             services.Configure<DeviceConfiguration>(Configuration.GetSection(nameof(DeviceConfiguration)))
@@ -116,9 +124,8 @@ namespace SuaveAvocado.Sensor.Mock
             var revealer = serviceProvider.GetService<ISecretRevealer>();
 
             revealer.Reveal();
-
-            Console.ReadKey();
         }
+
 
         private static async Task ReceiveEvents(DeviceClient device)
         {

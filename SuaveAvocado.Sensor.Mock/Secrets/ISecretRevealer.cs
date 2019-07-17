@@ -1,4 +1,4 @@
-﻿namespace SuaveAvocado.Sensor.Mock
+﻿namespace SuaveAvocado.Sensor.Mock.Secrets
 {
     public interface ISecretRevealer
     {

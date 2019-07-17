@@ -1,7 +1,7 @@
 ﻿using System;
 using Microsoft.Extensions.Options;
 
-namespace SuaveAvocado.Sensor.Mock
+namespace SuaveAvocado.Sensor.Mock.Secrets
 {
     public class SecretRevealer : ISecretRevealer
     {
